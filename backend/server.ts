@@ -2,13 +2,18 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from "dotenv";
+import cors from 'cors';
 
 dotenv.config();
 const app = express();
+app.use(cors({ origin: 'http://localhost:5173', credentials: true })); //replace origin
 app.use(express.json());
 
 const users: { name: string; password: string }[] = [];
 let refreshTokens: string[] = []; //Replace with database
+app.get('/users', (req: any, res: any) => {
+    res.json(users);
+});
 
 app.post('/token', (req: any, res: any) => {
     const refreshtoken = req.body.token;
