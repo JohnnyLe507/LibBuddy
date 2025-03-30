@@ -2,11 +2,13 @@ import { useState } from 'react'
 import videoFile from './assets/WalkingLibraryVideo.mp4'
 import './App.css'
 import axios from 'axios'
+import { Link } from 'react-router-dom';
 
 function App() {
   const [count, setCount] = useState(0)
   const [isLoginVisible, setIsLoginVisible] = useState(false);
   const [isRegisterVisible, setIsRegisterVisible] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -18,11 +20,12 @@ function App() {
         name: formData.get('name'),
         password: formData.get('password')
       });
-      console.log("Token:", response.data.token);
+      // console.log("Token:", response.data.token);
     } catch (error) {
       console.error(error)
     }
   }
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
@@ -31,7 +34,21 @@ function App() {
         name: formData.get('name'),
         password: formData.get('password')
       });
-      console.log("Token:", response.data.token);
+      // console.log("Token:", response.data.token);
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const formData = new FormData(e.target as HTMLFormElement);
+      const response = await axios.get('http://localhost:3000/search', {
+        params: { q: formData.get('query') as string },
+      });
+      // console.log("Search Results:", response.data);
+      setSearchResults(response.data);
     } catch (error) {
       console.error(error)
     }
@@ -93,9 +110,23 @@ function App() {
       </video>
         {/* Search Bar in Center */}
         <div className="search-bar-container">
-          <input type="text" placeholder="Search..." className="search-bar" />
-          <button className="search-button">🔍</button>
+          <form onSubmit={handleSearch}>
+            <input type="text" name="query" placeholder="Search..." className="search-bar" />
+            <button type="submit" className="search-button">🔍</button>
+          </form>
         </div>
+        {searchResults.length > 0 ? (
+          <ul className="modal">
+            {searchResults.map((book, index) => (
+              <li key={index}>
+                <Link to={`/book${book.key}`}>{book.title}</Link>
+                {/* <p>{book.title}</p> */}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No results found.</p>
+        )}
       </div>
       
     </>
