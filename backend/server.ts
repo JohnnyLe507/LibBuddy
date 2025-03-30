@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from "dotenv";
 import cors from 'cors';
+import axios from 'axios';
 
 dotenv.config();
 const app = express();
@@ -66,6 +67,21 @@ app.post('/login', async(req, res) => {
 app.delete('/logout', (req, res) => {
     refreshTokens = refreshTokens.filter(token => token !== req.body.token);
     res.sendStatus(204);
+});
+
+app.get('/search', async (req: any, res: any) => {
+    try {
+        const response = await axios.get(`https://openlibrary.org/search.json?q=${req.query.q}`);
+        const data = (response.data as { docs: any[] }).docs;
+        const uniqueResults = Array.from(
+            new Map(data.map(book => [book.title, book])).values()
+          );
+        const topResults = uniqueResults.slice(0, 10);
+        res.json(topResults);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error });
+    }
 });
 
 function generateAccessToken(user: any) {
