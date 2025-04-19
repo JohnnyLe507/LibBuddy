@@ -11,7 +11,7 @@ function BookPage() {
     useEffect(() => {
         const fetchBookDetails = async () => {
           try {
-            const response = await axios.get(`https://openlibrary.org/works/${id}.json`);
+            const response = await axios.get(`http://localhost:3000/book/${id}`);
             setBook(response.data);
           } catch (error) {
             console.error(error);
@@ -39,10 +39,15 @@ function BookPage() {
             </ul>
         </nav>
             <div className="book-page">
-                <h1>Book Page</h1>
-                <input type="text" name="name" placeholder="Username" /> <br/>
                 <h2>{book.title}</h2>
-                <p>{book.description?.value || "No description available"}</p>
+                <p>{book.author || "No author available"}</p>
+                {book.covers?.length > 0 && (
+                <img
+                    src={`https://covers.openlibrary.org/b/id/${book.covers[0]}-L.jpg`}
+                    alt={`Cover of ${book.title}`}
+                />
+                )}
+                <p>{book.description || "No description available"}</p>
             </div>
         </>
     )

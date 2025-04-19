@@ -15,8 +15,8 @@ body {
 
   .book-page {
     position: fixed;
-    top: 50%;
-    left: 50%;
+    top: 40%;
+    left: 20%;
     transform: translate(-50%, -50%);
     height: 500px;
     width: 400px;
