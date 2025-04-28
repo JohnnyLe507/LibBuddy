@@ -1,25 +1,30 @@
-body {
-    background-color: #f8e5c3;
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-  }
+body,html {
+  background-color: #f8e5c3;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+}
   
-  #root {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
-  }
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
 
-  .book-page {
-    position: fixed;
-    top: 40%;
-    left: 20%;
-    transform: translate(-50%, -50%);
-    height: 500px;
-    width: 400px;
-    padding: 20px;
-    z-index: 10;
-  }
+.book-page {
+  top: 40%;
+  left: 20%;
+  transform: translate(-100%, -20%);
+  height: 500px;
+  width: 400px;
+  padding: 20px;
+  z-index: 10;
+  text-align: left;
+}
+.description {
+  width: 800px;
+  text-align: left;
+}

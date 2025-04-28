@@ -134,6 +134,17 @@ app.get('/book/:id', async (req: any, res: any) => {
     }
 });
 
+app.get('/authors/:id', async (req: any, res: any) => {
+    try {
+        const { id } = req.params;
+        const response = await axios.get(`https://openlibrary.org/authors/${id}.json`);
+        res.json(response.data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error });
+    }
+});
+
 function generateAccessToken(user: any) {
     if (!process.env.ACCESS_TOKEN_SECRET) {
         throw new Error('ACCESS_TOKEN_SECRET is not defined');
