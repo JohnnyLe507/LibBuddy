@@ -13,7 +13,7 @@ app.use(express.json());
 
 const users: { name: string; password: string }[] = [];
 // let refreshTokens: string[] = []; //Replace with database
-app.get('/users', authenticateToken, async(req: any, res: any) => {
+app.get('/users', async(req: any, res: any) => {
     try {
         const result = await pool.query('SELECT id, name FROM users');
         res.json(result.rows);
@@ -123,7 +123,7 @@ app.get('/search', async (req: any, res: any) => {
     }
 });
 
-app.get('/book/:id', async (req: any, res: any) => {
+app.get('/works/:id', async (req: any, res: any) => {
     try {
         const { id } = req.params;
         const response = await axios.get(`https://openlibrary.org/works/${id}.json`);
@@ -138,6 +138,28 @@ app.get('/authors/:id', async (req: any, res: any) => {
     try {
         const { id } = req.params;
         const response = await axios.get(`https://openlibrary.org/authors/${id}.json`);
+        res.json(response.data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error });
+    }
+});
+
+app.get('/authors/:id/works', async (req: any, res: any) => {
+    try {
+        const { id } = req.params;
+        const response = await axios.get(`https://openlibrary.org/authors/${id}/works.json`);
+        res.json(response.data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error });
+    }
+});
+
+app.get('/subjects/:subject', async (req: any, res: any) => {
+    try {
+        const { subject } = req.params;
+        const response = await axios.get(`https://openlibrary.org/subjects/${subject}.json?limit=1`);
         res.json(response.data);
     } catch (error) {
         console.error(error);

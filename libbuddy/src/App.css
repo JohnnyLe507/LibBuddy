@@ -112,6 +112,18 @@ body {
   border-radius: 8px;
   z-index: 10;
 }
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+.close-btn:hover {
+  color: red;
+}
 .entry-form {
   border: none;
   outline: none;
