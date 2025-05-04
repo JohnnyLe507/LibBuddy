@@ -19,7 +19,7 @@ function BookPage() {
     useEffect(() => {
         const fetchBookDetails = async () => {
           try {
-            const response = await axios.get(`http://localhost:3000/book/${id}`);
+            const response = await axios.get(`http://localhost:3000/works/${id}`);
             const result = response.data;
             setBook(result);
             fetchAuthorDetails(result);
@@ -49,14 +49,12 @@ function BookPage() {
         <nav className="navbar">
             <div className="logo">LibBuddy</div>
             <ul className="nav-links">
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Features</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Contact</a></li>
-            <button
-            >Login</button>
-            <button
-            >Sign Up</button>
+                <li><Link to="/">Home</Link></li>
+                <li><a href="#">Features</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
+                <button>Login</button>
+                <button>Sign Up</button>
             </ul>
         </nav>
         <div className="book-page">
@@ -81,6 +79,16 @@ function BookPage() {
                     </button>
                 )}
             </p>
+            <h2>Genres</h2>
+            <ul className="book-tags">
+            {book.subjects?.map((subject: string, index: number) => (
+                <li key={index}>
+                <Link to={`/category/${encodeURIComponent(subject)}`}>
+                    <button>{subject}</button>
+                </Link>
+                </li>
+            ))}
+            </ul>
         </div>
         </>
     )

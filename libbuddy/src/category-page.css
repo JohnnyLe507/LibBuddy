@@ -1,0 +1,32 @@
+body,html {
+    background-color: #f8e5c3;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow-y: auto;
+  }
+    
+  #root {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+  }
+  .carousel-wrapper {
+    display: flex;
+    align-items: center;
+  }
+  .carousel {
+    display: flex;
+    flex-direction: row;
+    overflow-x: hidden;
+    gap: 1rem;
+    width: 100%;
+  }
+  .book-card {
+    flex: 0 0 auto;
+    width: 180px;
+    text-align: center;
+  }
+  

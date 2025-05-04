@@ -2,13 +2,13 @@ import { useState } from 'react'
 import videoFile from './assets/WalkingLibraryVideo.mp4'
 import './App.css'
 import axios from 'axios'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function App() {
-  const [count, setCount] = useState(0)
   const [isLoginVisible, setIsLoginVisible] = useState(false);
   const [isRegisterVisible, setIsRegisterVisible] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([])
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -20,7 +20,11 @@ function App() {
         name: formData.get('name'),
         password: formData.get('password')
       });
-      // console.log("Token:", response.data.token);
+      console.log("Token:", response.data.accesstoken);
+      localStorage.setItem('token', response.data.accesstoken);
+      // localStorage.setItem('refreshToken', response.data.refreshtoken);
+      setIsLoginVisible(false);
+      navigate('/');
     } catch (error) {
       console.error(error)
     }
@@ -60,54 +64,53 @@ function App() {
       <nav className="navbar">
         <div className="logo">LibBuddy</div>
         <ul className="nav-links">
-          <li><a href="#">Home</a></li>
+          <li><Link to="/">Home</Link></li>
           <li><a href="#">Features</a></li>
           <li><a href="#">About</a></li>
           <li><a href="#">Contact</a></li>
           <button
             onClick={() => setIsLoginVisible(true)}
           >Login</button>
-          {/* <button
-            onClick={() => setIsBoxVisible(false)}
-          >Logout</button> */}
           <button
             onClick={() => setIsRegisterVisible(true)}
           >Sign Up</button>
         </ul>
       </nav>
-      
+
       {isLoginVisible && (<div className="modal">
-          <main>Log in to LibBuddy</main> <br/>
-          <form onSubmit={handleLogin}>
-            <label>Username: </label>
-            <input type="text" name="name" placeholder="Username" /> <br/>
-            <label>Password: </label>
-            <input type="password" name="password" placeholder="Password" /> <br/>
+        <button className="close-btn" onClick={() => setIsLoginVisible(false)}>X</button>
+        <main>Log in to LibBuddy</main> <br />
+        <form onSubmit={handleLogin}>
+          <label>Username: </label>
+          <input type="text" name="name" placeholder="Username" /> <br />
+          <label>Password: </label>
+          <input type="password" name="password" placeholder="Password" /> <br />
 
-            <button type="button">Forgot password?</button> <br/>
-            <button type="submit">Log in</button> <br/>
-            <button type="button" onClick={() => { setIsLoginVisible(false); setIsRegisterVisible(true); }}>Don't have an account? Sign up</button>
-          </form>
-        </div>)}
-        {isRegisterVisible && (<div className="modal">
-          <main>Register to LibBuddy</main> <br/>
-          <form onSubmit={handleRegister}>
-            <label>Username: </label>
-            <input type="text" name="name" placeholder="Username" /> <br/>
-            <label>Password: </label>
-            <input type="password" name="password" placeholder="Password" /> <br/>
-            <label>Confirm Password: </label>
-            <input type="password" name="password" placeholder="Confirm Password" /> <br/>
-            <button type="submit">Sign up</button> <br/>
-            <button type="button" onClick={() => { setIsLoginVisible(true); setIsRegisterVisible(false); }}>Already have an account? Log in</button>
+          <button type="button">Forgot password?</button> <br />
+          <button type="submit">Log in</button> <br />
+          <button type="button" onClick={() => { setIsLoginVisible(false); setIsRegisterVisible(true); }}>Don't have an account? Sign up</button>
+        </form>
+      </div>)}
+      {isRegisterVisible && (<div className="modal">
+        <button className="close-btn" onClick={() => setIsRegisterVisible(false)}>X</button>
+        <main>Register to LibBuddy</main> <br />
+        <form onSubmit={handleRegister}>
+          <label>Username: </label>
+          <input type="text" name="name" placeholder="Username" /> <br />
+          <label>Password: </label>
+          <input type="password" name="password" placeholder="Password" /> <br />
+          <label>Confirm Password: </label>
+          <input type="password" name="password" placeholder="Confirm Password" /> <br />
+          <button type="submit">Sign up</button> <br />
+          <button type="button" onClick={() => { setIsLoginVisible(true); setIsRegisterVisible(false); }}>Already have an account? Log in</button>
 
-          </form>
-        </div>)}
+        </form>
+      </div>)}
       {/* Video Background */}
       <div className="video-container">
-      <video autoPlay loop muted playsInline className="background-video">
-        <source src={videoFile} type="video/mp4" />
-      </video>
+        <video autoPlay loop muted playsInline className="background-video">
+          <source src={videoFile} type="video/mp4" />
+        </video>
         {/* Search Bar in Center */}
         <div className="search-bar-container">
           <form onSubmit={handleSearch}>
@@ -128,7 +131,7 @@ function App() {
           <p>No results found.</p>
         )}
       </div>
-      
+
     </>
   )
 }
