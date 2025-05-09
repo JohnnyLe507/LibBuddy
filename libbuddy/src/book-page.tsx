@@ -46,17 +46,6 @@ function BookPage() {
 
     return (
         <>
-        <nav className="navbar">
-            <div className="logo">LibBuddy</div>
-            <ul className="nav-links">
-                <li><Link to="/">Home</Link></li>
-                <li><a href="#">Features</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Contact</a></li>
-                <button>Login</button>
-                <button>Sign Up</button>
-            </ul>
-        </nav>
         <div className="book-page">
             <h1>{book.title}</h1>
             {book.covers?.length > 0 && (
