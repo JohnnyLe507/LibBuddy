@@ -44,17 +44,6 @@ function CategoryPage() {
 
     return (
         <>
-        <nav className="navbar">
-            <div className="logo">LibBuddy</div>
-            <ul className="nav-links">
-                <li><Link to="/">Home</Link></li>
-                <li><a href="#">Features</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Contact</a></li>
-                <button>Login</button>
-                <button>Sign Up</button>
-            </ul>
-        </nav>
         <div className="category-page">
             <h1>{subject || "No Category Name Available"}</h1>
             <h2>Results: {totalBooks} works</h2>

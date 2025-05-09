@@ -31,17 +31,6 @@ function AuthorPage() {
 
     return (
         <>
-        <nav className="navbar">
-            <div className="logo">LibBuddy</div>
-            <ul className="nav-links">
-                <li><Link to="/">Home</Link></li>
-                <li><a href="#">Features</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Contact</a></li>
-                <button>Login</button>
-                <button>Sign Up</button>
-            </ul>
-        </nav>
         <div className="author-page">
             <h1>{author?.name || "No Author Name Avaiable"}</h1>
             <div className='bio'>
