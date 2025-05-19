@@ -1,32 +1,40 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { jwtDecode } from 'jwt-decode';
+import { useAuth } from './AuthContext';
+import './NavBar.css';
+import { useUI } from './UIContext';
 
 export default function NavBar() {
-  const [isLoginVisible, setIsLoginVisible] = useState(false);
+  const { isLoginVisible, setIsLoginVisible } = useUI();
   const [isRegisterVisible, setIsRegisterVisible] = useState(false);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { login, logout, isLoggedIn } = useAuth();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      try {
-        const decoded: any = jwtDecode(token); //Maybe type-safe this
-        const isExpired = decoded.exp * 1000 < Date.now();
-        setIsLoggedIn(!isExpired); 
-      } catch (err) {
-        console.error("Invalid token", err);
-        setIsLoggedIn(false);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownVisible(false);
       }
+    };
+    if (isDropdownVisible) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, []);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownVisible]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     // alert('Login')
-    // setIsLoginVisible(false)
     try {
       const formData = new FormData(e.target as HTMLFormElement);
       const response = await axios.post('http://localhost:3000/login', {
@@ -34,11 +42,11 @@ export default function NavBar() {
         password: formData.get('password')
       });
       console.log("Token:", response.data.accesstoken);
-      localStorage.setItem('accessToken', response.data.accesstoken);
+      // localStorage.setItem('accessToken', response.data.accesstoken);
       // localStorage.setItem('refreshToken', response.data.refreshtoken);
+      login(response.data.accesstoken, response.data.refreshtoken);
       setIsLoginVisible(false);
-      navigate('/');
-      setIsLoggedIn(true);
+      // navigate('/');
       // window.location.reload(); 
     } catch (error) {
       console.error(error)
@@ -53,15 +61,19 @@ export default function NavBar() {
         name: formData.get('name'),
         password: formData.get('password')
       });
-      // console.log("Token:", response.data.token);
+      console.log("Token:", response.data.token);
     } catch (error) {
       console.error(error)
     }
   }
 
+  const handleProfileClick = () => {
+    setIsDropdownVisible(prev => !prev);
+  };
+
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    setIsLoggedIn(false); // Hide profile icon and dropdown
+    logout();
+    setIsDropdownVisible(false);
     navigate("/"); // Redirect to homepage or login page
   };
 
@@ -86,15 +98,14 @@ export default function NavBar() {
           ) : (
             <>
               {/* Profile icon and dropdown */}
-              <div className="profile-icon" >
-                <img src="/fallback-image.jpg"/>
+              <div className="profile-wrapper" ref={dropdownRef}>
+                <img src="/fallback-image.jpg" alt="Profile" className="profile-icon" onClick={handleProfileClick}/>
+                {isDropdownVisible && (
+                  <div className="dropdown-menu">
+                    <button onClick={handleLogout}>Sign Out</button>
+                  </div>
+                )}
               </div>
-
-              {/* {isDropdownVisible && (
-                <div className="dropdown-menu">
-                  <button onClick={handleLogout}>Sign Out</button>
-                </div>
-              )} */}
             </>
           )}
         </ul>

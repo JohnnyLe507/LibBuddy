@@ -4,6 +4,7 @@ import './App.css'
 import axios from 'axios'
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { useUI } from './UIContext';
 
 function BookPage() {
     const { id } = useParams();
@@ -11,6 +12,7 @@ function BookPage() {
     const [author, setAuthor] = useState<any>(null);
     const [authorId, setAuthorId] = useState<any>(null);
     const [showFullDescription, setShowFullDescription] = useState(false);
+    const { isLoginVisible, setIsLoginVisible } = useUI();
 
     const toggleDescription = () => setShowFullDescription(prev => !prev);
 
@@ -60,6 +62,7 @@ function BookPage() {
                 "No author available"
             )}
             </p>
+            <button onClick={() => setIsLoginVisible(true)}>Add to Reading List</button>
             <h2>About this book</h2>
             <p className='description'>{showFullDescription ? book.description : shortDescription}
                 {book.description.length > 300 && (
