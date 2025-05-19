@@ -9,15 +9,11 @@ function Home() {
     return (
         <Routes>
             <Route path="/" element={<Layout />}>
-                <Route path="/" element={<App />} />
+                <Route index element={<App />} />
                 <Route path="/book/works/:id" element={<BookPage />} />
                 <Route path="/author/:id" element={<AuthorPage />} />
                 <Route path="/category/:subject" element={<CategoryPage />} />
             </Route>
-            {/* <Route path="/" element={<App />} />
-            <Route path="/book/works/:id" element={<BookPage />} />
-            <Route path="/author/:id" element={<AuthorPage />} />
-            <Route path="/category/:subject" element={<CategoryPage />} /> */}
         </Routes>
     )
 }
