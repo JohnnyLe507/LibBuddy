@@ -4,6 +4,8 @@ import BookPage from './book-page';
 import AuthorPage from './author-page';
 import CategoryPage from './category-page';
 import Layout from './Layout';
+import ReadingListPage from './readinglist-page';
+import NotFound from './notfound';
 
 function Home() {
     return (
@@ -13,6 +15,8 @@ function Home() {
                 <Route path="/book/works/:id" element={<BookPage />} />
                 <Route path="/author/:id" element={<AuthorPage />} />
                 <Route path="/category/:subject" element={<CategoryPage />} />
+                <Route path="/reading-list" element={<ReadingListPage />} />
+                <Route path="*" element={<NotFound />} />
             </Route>
         </Routes>
     )
