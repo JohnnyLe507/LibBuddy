@@ -83,9 +83,9 @@ export default function NavBar() {
         <div className="logo">LibBuddy</div>
         <ul className="nav-links">
           <li><Link to="/">Home</Link></li>
-          <li><a href="#">Features</a></li>
-          <li><a href="#">About</a></li>
-          <li><a href="#">Contact</a></li>
+          <li><a href="#">Genres</a></li>
+          <li><a href="#">Trending</a></li>
+          <li><Link to="/reading-list">Reading List</Link></li>
           {!isLoggedIn ? (
             <>
               <button

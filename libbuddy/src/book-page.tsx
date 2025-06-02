@@ -2,17 +2,21 @@ import { useEffect, useState } from 'react';
 import './book-page.css'
 import './App.css'
 import axios from 'axios'
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useUI } from './UIContext';
+import { useAuth } from './AuthContext';
 
 function BookPage() {
-    const { id } = useParams();
+    const { id } = useParams() as { id: string };
     const [book, setBook] = useState<any>(null);
     const [author, setAuthor] = useState<any>(null);
     const [authorId, setAuthorId] = useState<any>(null);
     const [showFullDescription, setShowFullDescription] = useState(false);
     const { isLoginVisible, setIsLoginVisible } = useUI();
+    const { isLoggedIn } = useAuth();
+    const [readingList, setReadingList] = useState<string[]>([]);
+    const navigate = useNavigate();
 
     const toggleDescription = () => setShowFullDescription(prev => !prev);
 
@@ -23,10 +27,14 @@ function BookPage() {
           try {
             const response = await axios.get(`http://localhost:3000/works/${id}`);
             const result = response.data;
+            if (!response.data) {
+              navigate('*');
+            }
             setBook(result);
             fetchAuthorDetails(result);
           } catch (error) {
             console.error(error);
+            navigate('*');
           } 
         };
 
@@ -41,8 +49,67 @@ function BookPage() {
             console.error(error);
           };
         }
+
+      const fetchReadingList = async () => {
+        const token = localStorage.getItem('accesstoken');
+        if (!token) return;
+
+        try {
+          const res = await axios.get('http://localhost:3000/reading-list', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setReadingList(res.data.map((item: any) => item.book_id)); // adjust if needed
+        } catch (err) {
+          console.error('Failed to fetch reading list:', err);
+        }
+      };
+
+      if (id) {
         fetchBookDetails();
+        fetchReadingList();
+      } else {
+        navigate('*');
+      }
     }, [id]);
+
+    const handleAddToReadingList = async () => {
+      if (!isLoggedIn) {
+        setIsLoginVisible(true); // Show login popup if not logged in
+        return;
+      }
+  
+      try {
+        const token = localStorage.getItem('accesstoken');
+        await axios.post(
+          'http://localhost:3000/add-to-reading-list',
+          { bookId: id },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setReadingList(prev => [...prev, id]);
+        alert('Book added to your reading list!');
+      } catch (error: any) {
+        if (error.response && error.response.status === 409) {
+          alert('This book is already in your reading list.');
+        } else {
+          console.error(error);
+          alert('Failed to add book to reading list.');
+        }
+      };
+    };
+
+  const handleRemove = async () => {
+    try {
+      const token = localStorage.getItem('accesstoken');
+      await axios.delete(`http://localhost:3000/reading-list/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setReadingList(prev => prev.filter(b => b !== id));
+      alert('Book removed from your reading list!');
+    } catch (error) {
+      console.error(error);
+      alert('Failed to remove.');
+    }
+  };
 
     if (!book) return <p>Loading...</p>;
 
@@ -62,7 +129,11 @@ function BookPage() {
                 "No author available"
             )}
             </p>
-            <button onClick={() => setIsLoginVisible(true)}>Add to Reading List</button>
+            {readingList.includes(id) ? (
+              <button onClick={handleRemove}>Remove</button>
+            ) : (
+              <button onClick={handleAddToReadingList}>Add</button>
+            )}
             <h2>About this book</h2>
             <p className='description'>{showFullDescription ? book.description : shortDescription}
                 {book.description.length > 300 && (
@@ -86,4 +157,4 @@ function BookPage() {
     )
 }
 
-export default BookPage
+export default BookPage;
