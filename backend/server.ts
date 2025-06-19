@@ -111,7 +111,9 @@ app.delete('/logout', async (req: any, res: any) => {
 
 app.get('/search', async (req: any, res: any) => {
     try {
-        const response = await axios.get(`https://openlibrary.org/search.json?q=${req.query.q}`);
+        const response = await axios.get(`https://openlibrary.org/search.json?title=${req.query.q}`, {
+            params: { q: req.query.q, limit: 10 },
+        });
         const data = (response.data as { docs: any[] }).docs;
         const uniqueResults = Array.from(
             new Map(data.map(book => [book.title, book])).values()
@@ -224,6 +226,29 @@ app.delete('/reading-list/:bookId', authenticateToken, async (req: any, res: any
         console.error('Error removing book:', error);
         res.status(500).json({ error: 'Failed to remove book from reading list' });
     }
+});
+
+app.get('/bestsellers', async (req:any, res:any) => {
+  try {
+    const response = await axios.get('https://api.nytimes.com/svc/books/v3/lists/current/hardcover-fiction.json', {
+      params: {
+        'api-key': process.env.NYT_API_KEY,
+      }
+    });
+
+    const data = response.data as { results: { books: any[] } };
+    const books = data.results.books.map(book => ({
+      title: book.title,
+      author: book.author,
+      book_image: book.book_image,
+      amazon_product_url: book.amazon_product_url,
+    }));
+
+    res.json(books);
+  } catch (error) {
+    console.error("Error fetching bestsellers:", error);
+    res.status(500).json({ error: 'Failed to fetch bestsellers' });
+  }
 });
 
 

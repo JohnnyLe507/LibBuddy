@@ -3,7 +3,8 @@ import videoFile from './assets/WalkingLibraryVideo.mp4'
 import './App.css'
 import axios from 'axios'
 import { Link } from 'react-router-dom';
-// import jwt_decode from 'jwt-decode'
+import { motion, AnimatePresence } from 'framer-motion';
+import BestsellerCarousel from './bestsellers-carousel';
 
 function App() {
   const [query, setQuery] = useState('');
@@ -70,7 +71,7 @@ function App() {
       if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     };
   }, [query]);
-  
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -84,53 +85,85 @@ function App() {
   return (
     <>
       {/* Video Background */}
-      <div className="video-container">
+      <div className="video-container relative">
         <video autoPlay loop muted playsInline className="background-video">
           <source src={videoFile} type="video/mp4" />
         </video>
-        <div className="relative z-20">
+      </div>
+      {/* Hero + Search Section */}
+      <div className="relative z-20 mt-12 flex flex-col items-center px-4 space-y-6 text-center">
+        <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg">
+          Discover Your Next Great Read
+        </h1>
+        <p className="text-lg md:text-xl text-gray-200 drop-shadow-md">
+          Search millions of books by title, genre, or author
+        </p>
 
-        </div>
-        {/* Search Bar in Center */}
-        <div ref={dropdownRef} className="search-bar-container relative z-20">
-          <form onSubmit={handleSearch}>
-            <input type="text" name="query" placeholder="Search..." value={query} onChange={(e) => {
-              setQuery(e.target.value);
-              setIsDropdownVisible(true);
-            }} className="search-bar" />
-            <button type="submit" className="search-button">🔍</button>
-          </form>
-          {isLoading && <div className="ml-2 text-gray-600">Loading...</div>}
-          {searchResults.length > 0 && isDropdownVisible &&(
-            <ul
-              className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 w-96 
-                         bg-white border border-gray-300 rounded-lg shadow-lg z-50 
-                         max-h-64 overflow-y-auto 
-                         transition-all duration-200 ease-out animate-fade-in-down"
+        <div ref={dropdownRef} className="relative flex flex-col items-center w-full max-w-md mx-auto">
+          <form
+            onSubmit={handleSearch}
+            className="flex items-center w-full px-4 py-2 rounded-full shadow-lg backdrop-blur-md bg-white/30 border border-white/20"
+          >
+            <input
+              type="text"
+              name="query"
+              placeholder="Search..."
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setIsDropdownVisible(true);
+              }}
+              className="flex-1 bg-transparent text-white placeholder-white/70 outline-none px-2 py-1 text-sm"
+            />
+            <button
+              type="submit"
+              className="text-white hover:text-blue-200 text-lg"
             >
-              {searchResults.map((book, index) => (
-                <li key={index} className="flex items-center space-x-4 border-b last:border-b-0 px-4 py-2 hover:bg-blue-100 transition duration-150">
-                  <img
-                    src={`https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg`}
-                    alt={book.title}
-                    className="w-10 h-16 object-cover rounded shadow-sm"
-                    onError={(e) => {
+              🔍
+            </button>
+          </form>
+
+          {/* Dropdown - must be inside this relative container */}
+          <AnimatePresence>
+            {searchResults.length > 0 && isDropdownVisible && (
+              <motion.ul
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="absolute top-full mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto"
+              >
+                {searchResults.map((book, index) => (
+                  <li
+                    key={index}
+                    className="flex items-center space-x-4 border-b last:border-b-0 px-4 py-2 hover:bg-blue-100 transition duration-150"
+                  >
+                    <img
+                      src={
+                        book.cover_i
+                          ? `https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg`
+                          : "/fallback-image.jpg"
+                      }
+                      alt={book.title || "Book cover"}
+                      className="w-10 h-16 object-cover rounded shadow-sm"
+                      onError={(e) => {
                         e.currentTarget.src = "/fallback-image.jpg";
                         e.currentTarget.alt = "Cover not available";
-                    }}
-                  />
-                  <Link
-                    to={`/book${book.key}`}
-                    className="text-sm font-medium"
-                  >
-                    {book.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
+                      }}
+                    />
+                    <Link to={`/book${book.key}`} className="text-sm font-medium">
+                      {book.title}
+                    </Link>
+                  </li>
+                ))}
+              </motion.ul>
+            )}
+          </AnimatePresence>
         </div>
       </div>
+      <section className="relative z-10 py-20 px-4">
+        <BestsellerCarousel />
+      </section>
     </>
   )
 }

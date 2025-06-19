@@ -11,19 +11,19 @@ function AuthorPage() {
 
     useEffect(() => {
         const fetchAuthorDetails = async () => {
-          try {
-            const response = await axios.get(`http://localhost:3000/authors/${id}`);
-            const result = response.data;
-            setAuthor(result);
+            try {
+                const response = await axios.get(`http://localhost:3000/authors/${id}`);
+                const result = response.data;
+                setAuthor(result);
 
-            const worksResponse = await axios.get(`http://localhost:3000/authors/${id}/works`);
-            const worksResult = worksResponse.data;
-            console.log(worksResult);
-            setWorks(worksResult.entries);
-            // fetchWorks(result);
-          } catch (error) {
-            console.error(error);
-          } 
+                const worksResponse = await axios.get(`http://localhost:3000/authors/${id}/works`);
+                const worksResult = worksResponse.data;
+                console.log(worksResult);
+                setWorks(worksResult.entries);
+                // fetchWorks(result);
+            } catch (error) {
+                console.error(error);
+            }
         };
         fetchAuthorDetails();
     }, [id]);
@@ -47,21 +47,19 @@ function AuthorPage() {
                     {works.map((work: any) => (
                         <li key={work.key} className="text-center">
                             <Link to={`/book/works/${work.key.split('/').pop()}`} className="block text-center space-y-2">
-                                {work.covers?.length > 0 ? (
-                                    <img
-                                        src={`https://covers.openlibrary.org/b/id/${work.covers[0]}-M.jpg`}
-                                        alt={`Cover of ${work.title}`}
-                                        className="w-full h-48 object-cover rounded shadow-md mx-auto"
-                                        onError={(e) => {
-                                            // e.currentTarget.src = "/fallback-image.jpg";
-                                            e.currentTarget.alt = "Cover not available";
-                                        }}
-                                    />
-                                ) : (
-                                    <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500 text-sm rounded shadow-sm">
-                                        No cover available
-                                    </div>
-                                )}
+                                <img
+                                    src={
+                                        work.covers && work.covers.length > 0
+                                            ? `https://covers.openlibrary.org/b/id/${work.covers[0]}-M.jpg`
+                                            : "/fallback-image.jpg"
+                                    }
+                                    alt={`Cover of ${work.title}`}
+                                    className="w-full h-48 object-cover rounded shadow-md mx-auto"
+                                    onError={(e) => {
+                                        e.currentTarget.src = "/fallback-image.jpg";
+                                        e.currentTarget.alt = "Cover not available";
+                                    }}
+                                />
                                 <p className="mt-2 text-sm font-medium">{work.title}</p>
                             </Link>
                         </li>

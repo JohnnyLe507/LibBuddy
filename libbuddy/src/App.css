@@ -21,14 +21,15 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 100vw;
-  height: 40vh;
+  height: 60vh;
   object-fit: cover;
+  z-index: 1;
 }
 .search-bar-container {
   position: absolute;
-  top: 15%;
+  /* top: 15%; */
   left: 50%;
-  transform: translate(-50%, -50%);
+  /* transform: translate(-50%, -50%); */
   display: flex;
   align-items: center;
   background: rgba(255, 255, 255, 0.8);
