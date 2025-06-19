@@ -79,7 +79,7 @@ export default function NavBar() {
 
   return (
     <>
-      <nav className="bg-white shadow-md sticky top-0 z-50">
+      <nav className="bg-white/70 backdrop-blur-md shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             {/* Logo */}
@@ -91,7 +91,7 @@ export default function NavBar() {
             <ul className="flex gap-6 items-center text-gray-700 font-medium">
               <li><Link to="/" className="hover:text-blue-600 transition">Home</Link></li>
               <li><a href="#" className="hover:text-blue-600 transition">Genres</a></li>
-              <li><a href="#" className="hover:text-blue-600 transition">Trending</a></li>
+              <li><a href="#" className="hover:text-blue-600 transition">Best Sellers</a></li>
               <li><Link to="/reading-list" className="hover:text-blue-600 transition">Reading List</Link></li>
 
               {!isLoggedIn ? (
