@@ -13,7 +13,16 @@
     transform: translateY(0) scale(1);
   }
 }
-
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+html {
+  scroll-behavior: smooth;
+}
 body {
     /* background-color: #a0a0a0;
     margin: 0;
@@ -27,10 +36,10 @@ body {
 }
 
 #root {
-    max-width: 1280px;
+    /* max-width: 1280px;
     margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
+    padding: 2rem; */
+    /* text-align: center; */
 }
 .profile-icon {
     width: 15px;

@@ -137,6 +137,28 @@ app.get('/works/:id', async (req: any, res: any) => {
     }
 });
 
+app.get('/ratings/:id', async (req: any, res: any) => {
+    try {
+        const { id } = req.params;
+        const response = await axios.get(`https://openlibrary.org/works/${id}/ratings.json`);
+        res.json(response.data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error });
+    }
+});
+
+app.get('/editions/:id', async (req: any, res: any) => {
+    try {
+        const { id } = req.params;
+        const response = await axios.get(`https://openlibrary.org/works/${id}/editions.json`);
+        res.json(response.data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error });
+    }
+});
+
 app.get('/authors/:id', async (req: any, res: any) => {
     try {
         const { id } = req.params;
@@ -159,15 +181,34 @@ app.get('/authors/:id/works', async (req: any, res: any) => {
     }
 });
 
-app.get('/subjects/:subject', async (req: any, res: any) => {
-    try {
-        const { subject } = req.params;
-        const response = await axios.get(`https://openlibrary.org/subjects/${subject}.json?limit=1`);
-        res.json(response.data);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error });
+app.get('/subjects/:subject', async (req, res) => {
+  try {
+    const { subject } = req.params;
+    const normalizedSubject = subject.toLowerCase();
+    const { offset = 0, limit = 6, ebooks, published_in } = req.query;
+
+    const params = new URLSearchParams({
+      limit: String(limit),
+      offset: String(offset),
+      details: "true",
+    });
+
+    if (ebooks === 'true') {
+      params.append("ebooks", "true");
     }
+
+    if (published_in) {
+      params.append("published_in", published_in as string);
+    }
+
+    const openLibraryUrl = `https://openlibrary.org/subjects/${normalizedSubject}.json?${params.toString()}`;
+    console.log("Fetching from Open Library:", openLibraryUrl);
+    const response = await axios.get(openLibraryUrl);
+    res.json(response.data);
+  } catch (error) {
+    console.error("Error fetching subject data:", error);
+    res.status(500).json({ error: "Failed to fetch subject data" });
+  }
 });
 
 app.post('/add-to-reading-list', authenticateToken, async (req: any, res: any) => {
