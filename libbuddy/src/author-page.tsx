@@ -3,6 +3,7 @@ import './author-page.css'
 import axios from 'axios'
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { motion } from "framer-motion";
 
 function AuthorPage() {
     const { id } = useParams();
@@ -29,46 +30,54 @@ function AuthorPage() {
     }, [id]);
 
     return (
-        <div className="author-pagemax-w-5xl mx-auto px-4 py-8">
-            <div className="text-center mb-10">
-                <h1 className="text-4xl font-bold mb-4">
-                    {author?.name || "No Author Name Available"}
-                </h1>
-                <p className="text-gray-600 text-lg italic">
-                    {typeof author?.bio === "string"
-                        ? author.bio
-                        : author?.bio?.value || "No Description Available"}
-                </p>
-            </div>
+        <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -24 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="relative z-10"
+        >
+            <div className="author-pagemax-w-5xl mx-auto px-4 py-8">
+                <div className="text-center mb-10">
+                    <h1 className="text-4xl font-bold mb-4">
+                        {author?.name || "No Author Name Available"}
+                    </h1>
+                    <p className="text-gray-600 text-lg italic">
+                        {typeof author?.bio === "string"
+                            ? author.bio
+                            : author?.bio?.value || "No Description Available"}
+                    </p>
+                </div>
 
-            <h2 className="text-2xl font-semibold mb-6 text-center">Ebooks</h2>
-            {works.length > 0 ? (
-                <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-                    {works.map((work: any) => (
-                        <li key={work.key} className="text-center">
-                            <Link to={`/book/works/${work.key.split('/').pop()}`} className="block text-center space-y-2">
-                                <img
-                                    src={
-                                        work.covers && work.covers.length > 0
-                                            ? `https://covers.openlibrary.org/b/id/${work.covers[0]}-M.jpg`
-                                            : "/fallback-image.jpg"
-                                    }
-                                    alt={`Cover of ${work.title}`}
-                                    className="w-full h-48 object-cover rounded shadow-md mx-auto"
-                                    onError={(e) => {
-                                        e.currentTarget.src = "/fallback-image.jpg";
-                                        e.currentTarget.alt = "Cover not available";
-                                    }}
-                                />
-                                <p className="mt-2 text-sm font-medium">{work.title}</p>
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p className="text-center text-gray-500">No ebooks found for this author.</p>
-            )}
-        </div>
+                <h2 className="text-2xl font-semibold mb-6 text-center">Ebooks</h2>
+                {works.length > 0 ? (
+                    <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+                        {works.map((work: any) => (
+                            <li key={work.key} className="text-center">
+                                <Link to={`/book/works/${work.key.split('/').pop()}`} className="block text-center space-y-2">
+                                    <img
+                                        src={
+                                            work.covers && work.covers.length > 0
+                                                ? `https://covers.openlibrary.org/b/id/${work.covers[0]}-M.jpg`
+                                                : "/fallback-image.jpg"
+                                        }
+                                        alt={`Cover of ${work.title}`}
+                                        className="w-full h-48 object-cover rounded shadow-md mx-auto"
+                                        onError={(e) => {
+                                            e.currentTarget.src = "/fallback-image.jpg";
+                                            e.currentTarget.alt = "Cover not available";
+                                        }}
+                                    />
+                                    <p className="mt-2 text-sm font-medium">{work.title}</p>
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="text-center text-gray-500">No ebooks found for this author.</p>
+                )}
+            </div>
+        </motion.div>
     )
 }
 
