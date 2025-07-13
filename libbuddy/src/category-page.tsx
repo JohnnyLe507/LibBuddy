@@ -155,8 +155,8 @@ function CategoryPage() {
                 {/* Main Content */}
                 <main className="md:w-3/4">
                     <div className="sticky top-0 z-10 bg-white py-2 mb-4">
-                        <h1 className="text-3xl font-bold capitalize mb-1">{subject}</h1>
-                        <p className="text-gray-500">{totalBooks} works found</p>
+                        <h1 className="text-3xl font-bold capitalize mb-1 text-center">{subject}</h1>
+                        <p className="text-gray-500 text-center">{totalBooks} works found</p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -170,7 +170,7 @@ function CategoryPage() {
                                     alt={book.title}
                                     className="w-full h-64 object-cover rounded mb-3"
                                 />
-                                <h3 className="text-lg font-semibold text-gray-800 truncate">
+                                <h3 className="text-lg font-semibold text-gray-800 truncate text-center">
                                     <Link
                                         to={`/book/works/${book.key.split("/").pop()}`}
                                         className="hover:underline text-blue-700"
@@ -180,7 +180,7 @@ function CategoryPage() {
                                 </h3>
 
                                 {(book.authors?.length ?? 0) > 0 && (
-                                    <p className="text-sm text-gray-500 truncate">
+                                    <p className="text-sm text-gray-500 truncate text-center">
                                         by{" "}
                                         <Link
                                             to={`/author/${book.authors?.[0]?.key?.split("/")?.pop()}`}
