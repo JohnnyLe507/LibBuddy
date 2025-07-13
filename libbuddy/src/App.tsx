@@ -228,20 +228,6 @@ function App() {
               </div>
               <h1 className="max-w-2xl mb-6 text-4xl md:text-5xl lg:text-6xl font-medium leading-none text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">Access thousands of books at your fingertips</h1>
               <p className="max-w-xl mb-10 text-lg leading-relaxed text-gray-600">LibBuddy helps you discover, track, and organize your favorite books with a seamless and beautiful reading experience. Whether you're a casual reader or a dedicated bookworm, we've got your next great read.</p>
-              <ul className="space-y-4 text-left text-gray-700 mb-8">
-                <li className="flex items-start gap-3">
-                  <span className="text-2xl">📚</span>
-                  <span><strong>Browse top books</strong> by category, popularity, or custom search.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-2xl">❤️</span>
-                  <span><strong>Save your favorites</strong> into a personalized reading list.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-2xl">⚡</span>
-                  <span><strong>Get details instantly</strong> from Open Library and NYT.</span>
-                </li>
-              </ul>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a className="inline-flex items-center justify-center px-6 py-3 text-sm font-semibold text-neutral-950 bg-white hover:bg-neutral-100 rounded-full transition-all duration-200 hover:shadow-lg group" href="#">
                   Start Reading
@@ -249,7 +235,11 @@ function App() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
                   </svg>
                 </a>
-                <a className="inline-flex items-center justify-center px-6 py-3 text-sm font-semibold text-white hover:text-white border border-neutral-700 hover:border-white hover:border-opacity-50 rounded-full transition-all duration-200" href="#">Browse Catalog</a>
+                <Link
+                  to="/browse"
+                  className="inline-flex items-center justify-center px-6 py-3 text-sm font-semibold text-white hover:text-white border border-neutral-700 hover:border-white hover:border-opacity-50 rounded-full transition-all duration-200"                >
+                  Browse Catelog
+                </Link>
               </div>
             </div>
             <div className="w-full lg:w-1/2 px-4">
@@ -269,7 +259,9 @@ function App() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-5xl leading-tight font-medium text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-gray-300 font-heading mb-6">Featured Collections</h2>
-              <p className="mb-2 text-lg leading-relaxed text-neutral-300 max-w-3xl mx-auto">Discover our carefully curated book collections spanning fiction, non-fiction, academic research, and audiobooks for every reading preference.</p>
+              <p className="mb-2 text-lg leading-relaxed text-neutral-600 max-w-3xl mx-auto">
+                Discover our curated collections spanning fiction, non-fiction, and reference materials to fuel every reader's curiosity.
+              </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <div className="bg-gradient-to-br from-gray-100 to-gray-400 border border-gray-300 rounded-2xl p-6 hover:border-gray-400 transition-all duration-200 shadow-md">
@@ -280,8 +272,13 @@ function App() {
                   </div>
                 </div>
                 <h4 className="text-3xl leading-tight font-medium text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-gray-300 mb-4">Fiction</h4>
-                <p className="mb-6 leading-relaxed text-neutral-300">Explore thousands of novels, short stories, and literary works from bestselling authors and emerging voices worldwide.</p>
-                <a className="inline-flex items-center text-lg font-semibold text-white hover:text-white border-b border-white border-opacity-20 hover:border-opacity-50 transition-all duration-200" href="#">Browse Fiction</a>
+                <p className="mb-6 leading-relaxed text-neutral-600">Explore novels, short stories, and literary works from bestsellers and emerging voices alike.</p>
+                <Link
+                  to="/category/fiction"
+                  className="inline-flex items-center text-lg font-semibold text-gray-800 hover:text-black border-b border-gray-500 hover:border-gray-800 transition-all duration-200"
+                >
+                  Browse Fiction
+                </Link>
               </div>
               <div className="bg-gradient-to-br from-gray-100 to-gray-400 border border-gray-300 rounded-2xl p-6 hover:border-gray-400 transition-all duration-200 shadow-md">
                 <div className="relative mb-6">
@@ -291,8 +288,13 @@ function App() {
                   </div>
                 </div>
                 <h4 className="text-3xl leading-tight font-medium text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-gray-300 mb-4">Non-Fiction</h4>
-                <p className="mb-6 leading-relaxed text-neutral-300">Dive into biographies, self-help, history, science, and educational content to expand your knowledge and understanding.</p>
-                <a className="inline-flex items-center text-lg font-semibold text-white hover:text-white border-b border-white border-opacity-20 hover:border-opacity-50 transition-all duration-200" href="#">Explore Non-Fiction</a>
+                <p className="mb-6 leading-relaxed text-neutral-600">Gain insights through biographies, self-help, history, and educational content.</p>
+                <Link
+                  to="/category/nonfiction"
+                  className="inline-flex items-center text-lg font-semibold text-gray-800 hover:text-black border-b border-gray-500 hover:border-gray-800 transition-all duration-200"
+                >
+                  Browse Non-Fiction
+                </Link>
               </div>
               <div className="bg-gradient-to-br from-gray-100 to-gray-400 border border-gray-300 rounded-2xl p-6 hover:border-gray-400 transition-all duration-200 shadow-md">
                 <div className="relative mb-6">
@@ -301,14 +303,20 @@ function App() {
                     <img className="w-full h-48 object-cover rounded-xl border border-neutral-800" src="https://images.unsplash.com/photo-1589998059171-988d887df646?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wzMzIzMzB8MHwxfHNlYXJjaHwxMHx8Ym9va3N8ZW58MHx8fHwxNzQ4OTM2ODI4fDA&ixlib=rb-4.1.0&q=80&w=1080&w=850" alt="" />
                   </div>
                 </div>
-                <h4 className="text-3xl leading-tight font-medium text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-gray-300 mb-4">Audiobooks</h4>
-                <p className="mb-6 leading-relaxed text-neutral-300">Listen to professionally narrated audiobooks perfect for commuting, exercising, or relaxing at home.</p>
-                <a className="inline-flex items-center text-lg font-semibold text-white hover:text-white border-b border-white border-opacity-20 hover:border-opacity-50 transition-all duration-200" href="#">Listen Now</a>
+                <h4 className="text-3xl leading-tight font-medium text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-gray-200 to-gray-300 mb-4">Fantasy</h4>
+                <p className="mb-6 leading-relaxed text-neutral-600">Embark on epic adventures through magical realms, legendary heroes, and mythical creatures that ignite the imagination.</p>
+                <Link
+                  to="/category/fantasy"
+                  className="inline-flex items-center text-lg font-semibold text-gray-800 hover:text-black border-b border-gray-500 hover:border-gray-800 transition-all duration-200"
+                >
+                  Browse Fantasy
+                </Link>
               </div>
             </div>
           </div>
         </div>
       </section>
+
 
       <footer className="bg-gradient-to-r from-neutral-950 via-neutral-900 to-neutral-950 py-16 border-t border-neutral-800 ">
         <div className="container px-4 mx-auto">

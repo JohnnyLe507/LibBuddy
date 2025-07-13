@@ -5,11 +5,13 @@ import dotenv from "dotenv";
 import cors from 'cors';
 import axios from 'axios';
 import pool from './db';
+import NodeCache from "node-cache";
 
 dotenv.config();
 const app = express();
 app.use(cors({ origin: 'http://localhost:5173', credentials: true })); //replace origin
 app.use(express.json());
+const cache = new NodeCache({ stdTTL: 3600 });
 
 const users: { name: string; password: string }[] = [];
 // let refreshTokens: string[] = []; //Replace with database
@@ -109,6 +111,21 @@ app.delete('/logout', async (req: any, res: any) => {
     }
 });
 
+const cacheMiddleware = (key: string, ttl: number, fetchFn: () => Promise<any>, res: any) => {
+    const cached = cache.get(key);
+    if (cached) {
+        return res.json(cached);
+    }
+    fetchFn().then(data => {
+        cache.set(key, data, ttl);
+        res.json(data);
+    }).catch(err => {
+        console.error(err);
+        res.status(500).json({ error: err });
+    });
+};
+
+
 app.get('/search', async (req: any, res: any) => {
     try {
         const response = await axios.get(`https://openlibrary.org/search.json?title=${req.query.q}`, {
@@ -129,8 +146,10 @@ app.get('/search', async (req: any, res: any) => {
 app.get('/works/:id', async (req: any, res: any) => {
     try {
         const { id } = req.params;
-        const response = await axios.get(`https://openlibrary.org/works/${id}.json`);
-        res.json(response.data);
+        cacheMiddleware(`works-${id}`, 86400, async () => {
+            const response = await axios.get(`https://openlibrary.org/works/${id}.json`);
+            return response.data;
+        }, res);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error });
@@ -140,8 +159,10 @@ app.get('/works/:id', async (req: any, res: any) => {
 app.get('/ratings/:id', async (req: any, res: any) => {
     try {
         const { id } = req.params;
-        const response = await axios.get(`https://openlibrary.org/works/${id}/ratings.json`);
-        res.json(response.data);
+        cacheMiddleware(`ratings-${id}`, 86400, async () => {
+            const response = await axios.get(`https://openlibrary.org/works/${id}/ratings.json`);
+            return response.data;
+        }, res);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error });
@@ -151,8 +172,10 @@ app.get('/ratings/:id', async (req: any, res: any) => {
 app.get('/editions/:id', async (req: any, res: any) => {
     try {
         const { id } = req.params;
-        const response = await axios.get(`https://openlibrary.org/works/${id}/editions.json`);
-        res.json(response.data);
+        cacheMiddleware(`editions-${id}`, 86400, async () => {
+            const response = await axios.get(`https://openlibrary.org/works/${id}/editions.json`);
+            return response.data;
+        }, res);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error });
@@ -162,8 +185,10 @@ app.get('/editions/:id', async (req: any, res: any) => {
 app.get('/authors/:id', async (req: any, res: any) => {
     try {
         const { id } = req.params;
-        const response = await axios.get(`https://openlibrary.org/authors/${id}.json`);
-        res.json(response.data);
+        cacheMiddleware(`author-${id}`, 86400, async () => {
+            const response = await axios.get(`https://openlibrary.org/authors/${id}.json`);
+            return response.data;
+        }, res);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error });
@@ -173,8 +198,10 @@ app.get('/authors/:id', async (req: any, res: any) => {
 app.get('/authors/:id/works', async (req: any, res: any) => {
     try {
         const { id } = req.params;
-        const response = await axios.get(`https://openlibrary.org/authors/${id}/works.json`);
-        res.json(response.data);
+        cacheMiddleware(`author-works-${id}`, 86400, async () => {
+            const response = await axios.get(`https://openlibrary.org/authors/${id}/works.json`);
+            return response.data;
+        }, res);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error });
@@ -182,33 +209,37 @@ app.get('/authors/:id/works', async (req: any, res: any) => {
 });
 
 app.get('/subjects/:subject', async (req, res) => {
-  try {
-    const { subject } = req.params;
-    const normalizedSubject = subject.toLowerCase();
-    const { offset = 0, limit = 6, ebooks, published_in } = req.query;
+    try {
+        const { subject } = req.params;
+        const normalizedSubject = subject.toLowerCase();
+        const { offset = 0, limit = 6, ebooks, published_in } = req.query;
 
-    const params = new URLSearchParams({
-      limit: String(limit),
-      offset: String(offset),
-      details: "true",
-    });
+        const params = new URLSearchParams({
+            limit: String(limit),
+            offset: String(offset),
+            details: "true",
+        });
 
-    if (ebooks === 'true') {
-      params.append("ebooks", "true");
+        if (ebooks === 'true') {
+            params.append("ebooks", "true");
+        }
+
+        if (published_in) {
+            params.append("published_in", published_in as string);
+        }
+
+        const openLibraryUrl = `https://openlibrary.org/subjects/${normalizedSubject}.json?${params.toString()}`;
+        // console.log("Fetching from Open Library:", openLibraryUrl);
+        const cacheKey = `subject-${normalizedSubject}-${params.toString()}`;
+
+        cacheMiddleware(cacheKey, 86400, async () => {
+            const response = await axios.get(openLibraryUrl);
+            return response.data;
+        }, res);
+    } catch (error) {
+        console.error("Error fetching subject data:", error);
+        res.status(500).json({ error: "Failed to fetch subject data" });
     }
-
-    if (published_in) {
-      params.append("published_in", published_in as string);
-    }
-
-    const openLibraryUrl = `https://openlibrary.org/subjects/${normalizedSubject}.json?${params.toString()}`;
-    console.log("Fetching from Open Library:", openLibraryUrl);
-    const response = await axios.get(openLibraryUrl);
-    res.json(response.data);
-  } catch (error) {
-    console.error("Error fetching subject data:", error);
-    res.status(500).json({ error: "Failed to fetch subject data" });
-  }
 });
 
 app.post('/add-to-reading-list', authenticateToken, async (req: any, res: any) => {
@@ -269,27 +300,43 @@ app.delete('/reading-list/:bookId', authenticateToken, async (req: any, res: any
     }
 });
 
-app.get('/bestsellers', async (req:any, res:any) => {
-  try {
-    const response = await axios.get('https://api.nytimes.com/svc/books/v3/lists/current/hardcover-fiction.json', {
-      params: {
-        'api-key': process.env.NYT_API_KEY,
-      }
-    });
+app.get('/bestsellers', async (req: any, res: any) => {
+    try {
+        const response = await axios.get('https://api.nytimes.com/svc/books/v3/lists/current/hardcover-fiction.json', {
+            params: {
+                'api-key': process.env.NYT_API_KEY,
+            }
+        });
 
-    const data = response.data as { results: { books: any[] } };
-    const books = data.results.books.map(book => ({
-      title: book.title,
-      author: book.author,
-      book_image: book.book_image,
-      amazon_product_url: book.amazon_product_url,
-    }));
+        const data = response.data as { results: { books: any[] } };
+        const books = data.results.books.map(book => ({
+            title: book.title,
+            author: book.author,
+            book_image: book.book_image,
+            amazon_product_url: book.amazon_product_url,
+        }));
 
-    res.json(books);
-  } catch (error) {
-    console.error("Error fetching bestsellers:", error);
-    res.status(500).json({ error: 'Failed to fetch bestsellers' });
-  }
+        res.json(books);
+    } catch (error) {
+        console.error("Error fetching bestsellers:", error);
+        res.status(500).json({ error: 'Failed to fetch bestsellers' });
+    }
+});
+
+app.delete('/cache/:key', (req, res) => {
+    const { key } = req.params;
+    const success = cache.del(key);
+    if (success) {
+        res.json({ message: `Cache cleared for key: ${key}` });
+    } else {
+        res.status(404).json({ error: `Key not found: ${key}` });
+    }
+});
+
+// Clear ALL cache (use carefully!)
+app.delete('/cache', (req, res) => {
+    cache.flushAll();
+    res.json({ message: 'All cache cleared' });
 });
 
 

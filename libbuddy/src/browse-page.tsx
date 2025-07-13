@@ -51,20 +51,16 @@ function BrowsePage() {
 
     useEffect(() => {
         const fetchAllGenres = async () => {
-            try {
-                const promises = genres.map((genre) =>
-                    axios
-                        .get(`http://localhost:3000/subjects/${genre.key}?limit=10`)
-                        .then((res) => ({ key: genre.key, data: res.data.works }))
-                );
-                const results = await Promise.all(promises);
-                const booksByGenre: Record<string, Book[]> = {};
-                results.forEach(({ key, data }) => {
-                    booksByGenre[key] = data;
-                });
-                setGenreBooks(booksByGenre);
-            } catch (err) {
-                console.error("Genre fetch error", err);
+            for (const genre of genres) {
+                try {
+                    const res = await axios.get(`http://localhost:3000/subjects/${genre.key}?limit=10`);
+                    setGenreBooks((prev) => ({
+                        ...prev,
+                        [genre.key]: res.data.works,
+                    }));
+                } catch (err) {
+                    console.error(`Error fetching ${genre.key}`, err);
+                }
             }
         };
 
@@ -115,7 +111,7 @@ function BrowsePage() {
                 </h1>
 
                 {/* Genre Buttons */}
-                <div className="flex flex-wrap gap-3 mb-12 sticky top-20 z-20 bg-white/60 backdrop-blur-md p-4 rounded-xl shadow-lg">
+                <div className="flex flex-wrap justify-center gap-3 mb-12 sticky top-20 z-20 bg-white/60 backdrop-blur-md p-4 rounded-xl shadow-lg">
                     {genres.map((g) => (
                         <a
                             key={g.key}
@@ -180,6 +176,7 @@ function BrowsePage() {
                                             className="min-w-[160px] overflow-visible backdrop-blur-lg bg-white/30 border border-white/20 rounded-xl p-3 shadow-md hover:shadow-xl hover:scale-105 hover:ring-2 hover:ring-indigo-300 transition-transform duration-300"
                                         >
                                             <img
+                                                loading="lazy"
                                                 src={
                                                     book.cover_id
                                                         ? `https://covers.openlibrary.org/b/id/${book.cover_id}-M.jpg`
@@ -189,7 +186,7 @@ function BrowsePage() {
                                                 className="w-full h-48 object-cover rounded-md mb-2"
                                                 onError={(e) => (e.currentTarget.src = "/fallback-image.jpg")}
                                             />
-                                            <p className="text-sm font-medium text-gray-800 truncate">{book.title}</p>
+                                            <p className="text-sm font-medium text-center text-gray-800 truncate">{book.title}</p>
                                         </Link>
                                     ))
                                 ) : (
