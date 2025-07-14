@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from "dotenv";
@@ -13,8 +13,15 @@ app.use(cors({ origin: 'http://localhost:5173', credentials: true })); //replace
 app.use(express.json());
 const cache = new NodeCache({ stdTTL: 3600 });
 
-const users: { name: string; password: string }[] = [];
-// let refreshTokens: string[] = []; //Replace with database
+interface AuthenticatedRequest extends Request {
+    user: { id: number; name: string };
+}
+
+interface JwtPayload {
+    id: number;
+    name: string;
+}
+
 app.get('/users', async (req: any, res: any) => {
     try {
         const result = await pool.query('SELECT *, name FROM users');
@@ -25,9 +32,12 @@ app.get('/users', async (req: any, res: any) => {
     }
 });
 
-app.post('/token', async (req: any, res: any) => {
+app.post('/token', async (req: Request, res: Response) => {
     const refreshtoken = req.body.token;
-    if (refreshtoken == null) return res.sendStatus(401);
+    if (refreshtoken == null) {
+        res.sendStatus(401);
+        return;
+    }
     try {
         const result = await pool.query(
             'SELECT * FROM refresh_tokens WHERE token = $1',
@@ -35,11 +45,15 @@ app.post('/token', async (req: any, res: any) => {
         );
 
         if (result.rows.length === 0) {
-            return res.sendStatus(403);
+            res.sendStatus(403);
+            return;
         }
 
         jwt.verify(refreshtoken, process.env.REFRESH_TOKEN_SECRET as string, (err: any, user: any) => {
-            if (err) return res.sendStatus(403);
+            if (err) {
+                res.sendStatus(403);
+                return;
+            }
             const userPayload = { id: user.id, name: user.name };
             const accesstoken = generateAccessToken(userPayload);
             res.json({ accesstoken: accesstoken });
@@ -49,7 +63,7 @@ app.post('/token', async (req: any, res: any) => {
     }
 });
 
-app.post('/register', async (req: any, res: any) => {
+app.post('/register', async (req: Request, res: Response) => {
     try {
         const salt = await bcrypt.genSalt(); // default is 10
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -62,19 +76,21 @@ app.post('/register', async (req: any, res: any) => {
         res.status(201).json(user.rows[0]);
     } catch (err: any) {
         if (err.code === '23505') {
-            return res.status(409).json({ error: 'Username already taken' });
+            res.status(409).json({ error: 'Username already taken' });
+            return;
         }
         res.status(500).send();
     }
 });
 
-app.post('/login', async (req: any, res: any) => {
+app.post('/login', async (req: Request, res: Response) => {
     try {
         const result = await pool.query('SELECT * FROM users WHERE name = $1', [req.body.name]);
 
         // If no user is found
         if (result.rows.length === 0) {
-            return res.status(400).send('Cannot find user');
+            res.status(400).send('Cannot find user')
+            return;
         }
         const user = result.rows[0];
 
@@ -94,14 +110,15 @@ app.post('/login', async (req: any, res: any) => {
             );
             res.json({ accesstoken: accesstoken, refreshtoken: refreshtoken });
         } else {
-            res.send('Not Allowed');
+            res.status(401).json({ error: 'Invalid password' });
+            // res.send('Not Allowed');
         }
     } catch {
         res.status(500).send();
     }
 });
 
-app.delete('/logout', async (req: any, res: any) => {
+app.delete('/logout', async (req: Request, res: Response) => {
     try {
         await pool.query('DELETE FROM refresh_tokens WHERE token = $1', [req.body.token]);
         res.sendStatus(204); // No content – logout successful
@@ -126,7 +143,7 @@ const cacheMiddleware = (key: string, ttl: number, fetchFn: () => Promise<any>, 
 };
 
 
-app.get('/search', async (req: any, res: any) => {
+app.get('/search', async (req: Request, res: Response) => {
     try {
         const response = await axios.get(`https://openlibrary.org/search.json?title=${req.query.q}`, {
             params: { q: req.query.q, limit: 10 },
@@ -143,7 +160,7 @@ app.get('/search', async (req: any, res: any) => {
     }
 });
 
-app.get('/works/:id', async (req: any, res: any) => {
+app.get('/works/:id', async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         cacheMiddleware(`works-${id}`, 86400, async () => {
@@ -156,7 +173,7 @@ app.get('/works/:id', async (req: any, res: any) => {
     }
 });
 
-app.get('/ratings/:id', async (req: any, res: any) => {
+app.get('/ratings/:id', async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         cacheMiddleware(`ratings-${id}`, 86400, async () => {
@@ -169,7 +186,7 @@ app.get('/ratings/:id', async (req: any, res: any) => {
     }
 });
 
-app.get('/editions/:id', async (req: any, res: any) => {
+app.get('/editions/:id', async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         cacheMiddleware(`editions-${id}`, 86400, async () => {
@@ -182,7 +199,7 @@ app.get('/editions/:id', async (req: any, res: any) => {
     }
 });
 
-app.get('/authors/:id', async (req: any, res: any) => {
+app.get('/authors/:id', async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         cacheMiddleware(`author-${id}`, 86400, async () => {
@@ -195,7 +212,7 @@ app.get('/authors/:id', async (req: any, res: any) => {
     }
 });
 
-app.get('/authors/:id/works', async (req: any, res: any) => {
+app.get('/authors/:id/works', async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         cacheMiddleware(`author-works-${id}`, 86400, async () => {
@@ -208,7 +225,7 @@ app.get('/authors/:id/works', async (req: any, res: any) => {
     }
 });
 
-app.get('/subjects/:subject', async (req, res) => {
+app.get('/subjects/:subject', async (req: Request, res: Response) => {
     try {
         const { subject } = req.params;
         const normalizedSubject = subject.toLowerCase();
@@ -242,8 +259,8 @@ app.get('/subjects/:subject', async (req, res) => {
     }
 });
 
-app.post('/add-to-reading-list', authenticateToken, async (req: any, res: any) => {
-    const userId = req.user.id;
+app.post('/add-to-reading-list', authenticateToken, async (req: Request, res: Response) => {
+    const userId = (req as AuthenticatedRequest).user.id;
     const { bookId } = req.body;
 
     try {
@@ -254,7 +271,8 @@ app.post('/add-to-reading-list', authenticateToken, async (req: any, res: any) =
         res.sendStatus(200);
     } catch (err: any) {
         if (err.code === '23505') {
-            return res.status(409).json({ message: 'Book already in reading list' });
+            res.status(409).json({ message: 'Book already in reading list' })
+            return;
         }
         console.error(err);
         res.sendStatus(500);
@@ -263,8 +281,8 @@ app.post('/add-to-reading-list', authenticateToken, async (req: any, res: any) =
 );
 
 // GET /reading-list
-app.get('/reading-list', authenticateToken, async (req: any, res: any) => {
-    const userId = req.user.id;
+app.get('/reading-list', authenticateToken, async (req: Request, res: Response) => {
+    const userId = (req as AuthenticatedRequest).user.id;
 
     try {
         const result = await pool.query(
@@ -279,8 +297,8 @@ app.get('/reading-list', authenticateToken, async (req: any, res: any) => {
 });
 
 // DELETE /reading-list/:bookId
-app.delete('/reading-list/:bookId', authenticateToken, async (req: any, res: any) => {
-    const userId = req.user.id;
+app.delete('/reading-list/:bookId', authenticateToken, async (req: Request, res: Response) => {
+    const userId = (req as AuthenticatedRequest).user.id;
     const { bookId } = req.params;
 
     try {
@@ -290,7 +308,8 @@ app.delete('/reading-list/:bookId', authenticateToken, async (req: any, res: any
         );
 
         if (result.rowCount === 0) {
-            return res.status(404).json({ error: 'Book not found in reading list' });
+            res.status(404).json({ error: 'Book not found in reading list' })
+            return;
         }
 
         res.json({ message: 'Book removed from reading list' });
@@ -300,7 +319,7 @@ app.delete('/reading-list/:bookId', authenticateToken, async (req: any, res: any
     }
 });
 
-app.get('/bestsellers', async (req: any, res: any) => {
+app.get('/bestsellers', async (req: Request, res: Response) => {
     try {
         const response = await axios.get('https://api.nytimes.com/svc/books/v3/lists/current/hardcover-fiction.json', {
             params: {
@@ -323,7 +342,7 @@ app.get('/bestsellers', async (req: any, res: any) => {
     }
 });
 
-app.delete('/cache/:key', (req, res) => {
+app.delete('/cache/:key', (req: Request, res: Response) => {
     const { key } = req.params;
     const success = cache.del(key);
     if (success) {
@@ -334,26 +353,34 @@ app.delete('/cache/:key', (req, res) => {
 });
 
 // Clear ALL cache (use carefully!)
-app.delete('/cache', (req, res) => {
+app.delete('/cache', (req: Request, res: Response) => {
     cache.flushAll();
     res.json({ message: 'All cache cleared' });
 });
 
 
-function generateAccessToken(user: any) {
+function generateAccessToken(user: { id: number; name: string }) {
     if (!process.env.ACCESS_TOKEN_SECRET) {
         throw new Error('ACCESS_TOKEN_SECRET is not defined');
     }
     return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15s' });
 }
 
-function authenticateToken(req: any, res: any, next: any) {
+function authenticateToken(req: Request, res: Response, next: NextFunction): void {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    if (token == null) return res.sendStatus(401);
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string, (err: any, user: any) => {
-        if (err) return res.sendStatus(403);
-        req.user = user;
+    if (!token) {
+        res.sendStatus(401); // No return here
+        return;
+    }
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string, (err, decoded) => {
+        if (err) {
+            res.sendStatus(403); // No return here
+            return;
+        }
+        const user = decoded as JwtPayload;
+        (req as AuthenticatedRequest).user = user;
         next();
     });
 }
