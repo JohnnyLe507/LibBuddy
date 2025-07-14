@@ -12,6 +12,8 @@ export default function NavBar() {
   const navigate = useNavigate();
   const { login, logout, isLoggedIn } = useAuth();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [errorLogin, setErrorLogin] = useState('');
+  const [errorRegister, setErrorRegister] = useState('');
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -49,6 +51,11 @@ export default function NavBar() {
       // navigate('/');
       // window.location.reload(); 
     } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        setErrorLogin('Invalid login.');
+      } else {
+        setErrorLogin('An unexpected error occurred. Please try again.');
+      }
       console.error(error)
     }
   }
@@ -61,8 +68,17 @@ export default function NavBar() {
         name: formData.get('name'),
         password: formData.get('password')
       });
-      console.log("Token:", response.data.token);
+
+      alert("Registered successfully!");
+      setIsRegisterVisible(false);
+      setIsLoginVisible(true);
+      // console.log("Token:", response.data.token);
     } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
+        setErrorRegister('Username is already taken.');
+      } else {
+        setErrorRegister('An unexpected error occurred. Please try again.');
+      }
       console.error(error)
     }
   }
@@ -188,6 +204,7 @@ export default function NavBar() {
                   placeholder="Password"
                   required
                 />
+                {errorLogin && <p className="text-red-500 text-sm mt-1">{errorLogin}</p>}
               </div>
               <div className="text-right text-sm">
                 <button type="button" className="text-blue-600 hover:underline">
@@ -263,6 +280,7 @@ export default function NavBar() {
                   placeholder="Username"
                   required
                 />
+                {errorRegister && <p className="text-red-500 text-sm mt-1">{errorRegister}</p>}
               </div>
               <div>
                 <label className="block mb-1 font-medium text-sm">Password</label>
