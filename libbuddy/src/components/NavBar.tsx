@@ -1,9 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { useAuth } from './AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import './NavBar.css';
-import { useUI } from './UIContext';
+import { useUI } from '../contexts/UIContext';
 
 export default function NavBar() {
   const { isLoginVisible, setIsLoginVisible } = useUI();
@@ -90,7 +90,7 @@ export default function NavBar() {
   const handleLogout = () => {
     logout();
     setIsDropdownVisible(false);
-    navigate("/"); // Redirect to homepage or login page
+    // navigate("/"); // Redirect to homepage or login page
   };
 
   return (
@@ -151,7 +151,7 @@ export default function NavBar() {
 
       {isLoginVisible && (
         <div
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 --animate-slide-in-up"
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 --animate-slide-in-up backdrop-blur-sm"
           onClick={() => setIsLoginVisible(false)}
         >
           <div
@@ -234,7 +234,7 @@ export default function NavBar() {
 
       {isRegisterVisible && (
         <div
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 backdrop-blur-sm"
           onClick={() => setIsRegisterVisible(false)}
         >
           <div

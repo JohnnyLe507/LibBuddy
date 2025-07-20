@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
-import './category-page.css'
-import './App.css'
+import '../styles/category-page.css'
+import '../styles/App.css'
 import axios from 'axios'
 import { useParams, Link } from 'react-router-dom';
 import { motion } from "framer-motion";
@@ -17,6 +17,7 @@ function CategoryPage() {
         title: string;
         cover_id?: number;
         authors?: Author[];
+        first_publish_year?: number;
         // Add other properties as needed
     }
 
@@ -100,9 +101,13 @@ function CategoryPage() {
         fetchBooksByCategory();
     }, [subject, offset, filterYear, ebooksOnly]);
 
-    const filteredBooks = books.filter((book) =>
-        book.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredBooks = books.filter((book) => {
+        const matchesTitle = book.title.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesYear = filterYear.match(/^\d{4}$/)
+            ? book.first_publish_year === parseInt(filterYear)
+            : true;
+        return matchesTitle && matchesYear;
+    });
 
     return (
         <motion.div

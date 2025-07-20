@@ -6,12 +6,17 @@ import cors from 'cors';
 import axios from 'axios';
 import pool from './db';
 import NodeCache from "node-cache";
+import { GoogleGenAI } from "@google/genai";
+import crypto from 'crypto';
 
 dotenv.config();
 const app = express();
 app.use(cors({ origin: 'http://localhost:5173', credentials: true })); //replace origin
 app.use(express.json());
 const cache = new NodeCache({ stdTTL: 3600 });
+const genAI = new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY,
+});
 
 interface AuthenticatedRequest extends Request {
     user: { id: number; name: string };
@@ -339,6 +344,80 @@ app.get('/bestsellers', async (req: Request, res: Response) => {
     } catch (error) {
         console.error("Error fetching bestsellers:", error);
         res.status(500).json({ error: 'Failed to fetch bestsellers' });
+    }
+});
+
+function getSuggestionsCacheKey(titles: string[]): string {
+    const hash = crypto.createHash('sha256').update(JSON.stringify(titles)).digest('hex');
+    return `suggestions-${hash}`;
+}
+
+app.post('/suggestions', async (req: Request, res: Response) => {
+    const { titles } = req.body; // Expecting array of book titles
+
+    if (!titles || !Array.isArray(titles)) {
+        res.status(400).json({ error: 'Missing or invalid titles array.' })
+        return;
+    }
+
+    const cacheKey = getSuggestionsCacheKey(titles);
+
+    // Try cache first
+    const cachedSuggestions = cache.get(cacheKey);
+    if (cachedSuggestions) {
+        res.json(cachedSuggestions);
+        return;
+    }
+
+    const prompt = `
+Based on the following book titles:
+
+${titles.map((t, i) => `${i + 1}. ${t}`).join("\n")}
+
+Suggest 5 similar books. For each, return:
+- Title
+- Author
+- Genre
+- Short description (1-2 sentences)
+
+Format the response like:
+1. Title: ...
+   Author: ...
+   Genre: ...
+   Description: ...
+`;
+
+    try {
+        const response = await genAI.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: [{ role: "user", parts: [{ text: prompt }] }]
+        });
+
+        const text = response.text ?? '';
+
+        const suggestions = [];
+        const blocks = text.split(/\n\s*\n/);
+        for (const block of blocks) {
+            const titleMatch = block.match(/Title:\s*(.*)/i);
+            const authorMatch = block.match(/Author:\s*(.*)/i);
+            const genreMatch = block.match(/Genre:\s*(.*)/i);
+            const descriptionMatch = block.match(/Description:\s*(.*)/i);
+
+            if (titleMatch && authorMatch && genreMatch && descriptionMatch) {
+                suggestions.push({
+                    title: titleMatch[1].trim(),
+                    author: authorMatch[1].trim(),
+                    genre: genreMatch[1].trim(),
+                    description: descriptionMatch[1].trim(),
+                });
+            }
+        }
+
+        cache.set(cacheKey, suggestions, 3600); // Cache for 1 hour
+        res.json(suggestions);
+    } catch (err) {
+        console.error('❌ Gemini error:', err);
+        res.status(500).json({ error: 'Failed to generate suggestions.' });
     }
 });
 

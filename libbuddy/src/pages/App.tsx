@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
-import videoFile from './assets/WalkingLibraryVideo.mp4'
-import './App.css'
+import videoFile from '../assets/WalkingLibraryVideo.mp4'
+import '../styles/App.css'
 import axios from 'axios'
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import BestsellerCarousel from './bestsellers-carousel';
+import BestsellerCarousel from '../components/bestsellers-carousel';
 
 function App() {
   const [query, setQuery] = useState('');

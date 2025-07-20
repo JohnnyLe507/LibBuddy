@@ -1,12 +1,12 @@
 import { Routes, Route, useLocation  } from 'react-router-dom';
-import App from './App';
-import BookPage from './book-page';
-import AuthorPage from './author-page';
-import CategoryPage from './category-page';
-import Layout from './Layout';
-import ReadingListPage from './readinglist-page';
-import NotFound from './notfound';
-import BrowsePage from './browse-page';
+import App from './pages/App';
+import BookPage from './pages/book-page';
+import AuthorPage from './pages/author-page';
+import CategoryPage from './pages/category-page';
+import Layout from './components/Layout';
+import ReadingListPage from './pages/readinglist-page';
+import NotFound from './pages/notfound';
+import BrowsePage from './pages/browse-page';
 import { AnimatePresence } from "framer-motion";
 
 function Home() {
