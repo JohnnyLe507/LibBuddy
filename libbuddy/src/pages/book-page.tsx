@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import './book-page.css'
-import './App.css'
+import '../styles/book-page.css'
+import '../styles/App.css'
 import axios from 'axios'
 import { useParams, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { useUI } from './UIContext';
-import { useAuth } from './AuthContext';
+import { useUI } from '../contexts/UIContext';
+import { useAuth } from '../contexts/AuthContext';
 import { decode } from 'he';
 import { motion } from "framer-motion";
 

@@ -43,9 +43,14 @@ function BestsellerCarousel() {
 
   return (
     <div className="relative z-30 my-16 px-4 max-w-6xl mx-auto">
-      <h2 className="text-4xl font-bold text-center text-white mb-12 drop-shadow-lg">
-        📚 NYT Bestsellers
-      </h2>
+      <div className="flex flex-col items-center mb-6">
+        <img
+          src="/NYTLogo.png"
+          alt="NYT Best Seller Logo"
+          className="h-20 w-auto drop-shadow-lg"
+        />
+        <div className="w-48 h-0.5 bg-black/70 rounded-full mt-3"></div>
+      </div>
       <Slider {...settings}>
         {books.map((book, index) => (
           <a
