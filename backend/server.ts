@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from "dotenv";
+dotenv.config();
 import cors from 'cors';
 import axios from 'axios';
 import pool from './db';
@@ -9,7 +10,7 @@ import NodeCache from "node-cache";
 import { GoogleGenAI } from "@google/genai";
 import crypto from 'crypto';
 
-dotenv.config();
+// dotenv.config();
 const app = express();
 app.use(cors({ origin: 'http://localhost:5173', credentials: true })); //replace origin
 app.use(express.json());
