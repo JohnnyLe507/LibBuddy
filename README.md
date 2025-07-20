@@ -47,7 +47,7 @@ It integrates the **Open Library API** for book data and the **New York Times Bo
 Here’s a preview of LibBuddy in action:
 
 ![Home Page](./screenshots/libbuddy_home.png)  
-![Reading List](./screenshots/libbuddy_readinglist.png)
+![Reading List](./screenshots/libbuddy_readinglist.PNG)
 
 ---
 
