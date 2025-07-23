@@ -5,6 +5,11 @@ It integrates the **Open Library API** for book data and the **New York Times Bo
 
 ---
 
+## Live Demo
+👉 [https://libbuddy.netlify.app/](https://libbuddy.netlify.app/)
+
+---
+
 ## Table of Contents
 - [Features](#features)
 - [Tech Stack](#tech-stack)
