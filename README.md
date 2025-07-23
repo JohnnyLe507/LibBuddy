@@ -66,11 +66,7 @@ Here’s a preview of LibBuddy in action:
    ```bash
     npm install
     ```
-4. Start the server:
-   ```bash
-    npm run devStart
-    ```
-5. Ensure PostgreSQL is running. Then, create a `.env` file in the backend root with the following variables **(replace placeholder values with your actual secrets and credentials):**
+4. Ensure PostgreSQL is running. Then, create a `.env` file in the backend root with the following variables **(replace placeholder values with your actual secrets and credentials):**
    ```bash
     ACCESS_TOKEN_SECRET=your_jwt_access_secret
     REFRESH_TOKEN_SECRET=your_jwt_refresh_secret
@@ -81,6 +77,11 @@ Here’s a preview of LibBuddy in action:
     PG_DATABASE=libbuddy
     PG_PASSWORD=your_password_here
     PG_PORT=5432
+    FRONTEND_URL=http://localhost:5173  # For local dev
+    ```
+5. Start the server:
+   ```bash
+    npm run devStart
     ```
 ### Frontend
 1. Head back to the root and navigate to the frontend:
@@ -91,7 +92,11 @@ Here’s a preview of LibBuddy in action:
    ```bash
     npm install
     ```
-3. Start the development server:
+3. Create a `.env` file in /libbuddy with the following variable:
+   ```bash
+    VITE_API_BASE_URL=http://localhost:3000  # For local dev
+    ```
+4. Start the development server:
    ```bash
     npm run dev
     ```

@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import classNames from "classnames";
 import { motion } from "framer-motion";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 interface Bestseller {
     title: string;
@@ -53,7 +54,7 @@ function BrowsePage() {
         const fetchAllGenres = async () => {
             for (const genre of genres) {
                 try {
-                    const res = await axios.get(`http://localhost:3000/subjects/${genre.key}?limit=10`);
+                    const res = await axios.get(`${API_BASE}/subjects/${genre.key}?limit=10`);
                     setGenreBooks((prev) => ({
                         ...prev,
                         [genre.key]: res.data.works,
@@ -66,7 +67,7 @@ function BrowsePage() {
 
         const fetchBestsellers = async () => {
             try {
-                const response = await axios.get("http://localhost:3000/bestsellers");
+                const response = await axios.get(`${API_BASE}/bestsellers`);
                 setBestsellers(response.data);
             } catch (err) {
                 console.error("Failed to load bestsellers", err);

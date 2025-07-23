@@ -5,20 +5,21 @@ import axios from 'axios'
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import BestsellerCarousel from '../components/bestsellers-carousel';
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 function App() {
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
       const formData = new FormData(e.target as HTMLFormElement);
-      const response = await axios.get('http://localhost:3000/search', {
+      const response = await axios.get(`${API_BASE}/search`, {
         params: { q: formData.get('query') as string },
       });
       // console.log("Search Results:", response.data);
@@ -40,10 +41,10 @@ function App() {
 
     debounceTimeout.current = setTimeout(() => {
       const controller = new AbortController();
-      setIsLoading(true);
+      // setIsLoading(true);
 
       axios
-        .get('http://localhost:3000/search', {
+        .get(`${API_BASE}/search`, {
           params: { q: query },
           signal: controller.signal,
         })
@@ -58,7 +59,7 @@ function App() {
           }
         })
         .finally(() => {
-          setIsLoading(false);
+          // setIsLoading(false);
         });
 
       return () => {

@@ -4,6 +4,7 @@ import '../styles/App.css'
 import axios from 'axios'
 import { useParams, Link } from 'react-router-dom';
 import { motion } from "framer-motion";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 interface Author {
     name: string;
@@ -59,7 +60,7 @@ function CategoryPage() {
                 }
 
                 const response = await axios.get(
-                    `http://localhost:3000/subjects/${subject?.toLowerCase()}?${params}`
+                    `${API_BASE}/subjects/${subject?.toLowerCase()}?${params}`
                 );
                 const result = response.data;
 

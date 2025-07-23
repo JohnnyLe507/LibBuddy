@@ -12,7 +12,7 @@ import crypto from 'crypto';
 
 // dotenv.config();
 const app = express();
-app.use(cors({ origin: 'http://localhost:5173', credentials: true })); //replace origin
+app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true })); //replace origin
 app.use(express.json());
 const cache = new NodeCache({ stdTTL: 3600 });
 const genAI = new GoogleGenAI({
