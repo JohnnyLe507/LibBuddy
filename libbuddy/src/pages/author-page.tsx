@@ -4,6 +4,7 @@ import axios from 'axios'
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { motion } from "framer-motion";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 function AuthorPage() {
     const { id } = useParams();
@@ -13,11 +14,11 @@ function AuthorPage() {
     useEffect(() => {
         const fetchAuthorDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/authors/${id}`);
+                const response = await axios.get(`${API_BASE}/authors/${id}`);
                 const result = response.data;
                 setAuthor(result);
 
-                const worksResponse = await axios.get(`http://localhost:3000/authors/${id}/works`);
+                const worksResponse = await axios.get(`${API_BASE}/${id}/works`);
                 const worksResult = worksResponse.data;
                 console.log(worksResult);
                 setWorks(worksResult.entries);

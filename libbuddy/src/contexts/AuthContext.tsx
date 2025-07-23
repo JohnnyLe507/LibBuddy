@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -44,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const refreshtoken = localStorage.getItem('refreshtoken');
       if (!refreshtoken) return logout();
-      const response = await axios.post('http://localhost:3000/token', {
+      const response = await axios.post(`${API_BASE}/token`, {
         token: refreshtoken,
       });
       const newAccessToken = response.data.accesstoken;

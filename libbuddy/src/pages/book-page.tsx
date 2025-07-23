@@ -8,13 +8,14 @@ import { useUI } from '../contexts/UIContext';
 import { useAuth } from '../contexts/AuthContext';
 import { decode } from 'he';
 import { motion } from "framer-motion";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 function BookPage() {
   const { id } = useParams() as { id: string };
   const [book, setBook] = useState<any>(null);
   const [authors, setAuthor] = useState<any[]>([]);
   const [showFullDescription, setShowFullDescription] = useState(false);
-  const { isLoginVisible, setIsLoginVisible } = useUI();
+  const { setIsLoginVisible } = useUI();
   const { isLoggedIn } = useAuth();
   const [readingList, setReadingList] = useState<string[]>([]);
   const navigate = useNavigate();
@@ -67,14 +68,14 @@ function BookPage() {
   }, [id]);
 
   const fetchBookDetails = async () => {
-    const { data } = await axios.get(`http://localhost:3000/works/${id}`);
+    const { data } = await axios.get(`${API_BASE}/works/${id}`);
     if (!data) throw new Error('Book not found');
     return data;
   };
 
   const fetchRatings = async () => {
     try {
-      const res = await axios.get(`http://localhost:3000/ratings/${id}`);
+      const res = await axios.get(`${API_BASE}/ratings/${id}`);
       const { summary, counts } = res.data;
       setRatingSummary({
         average: summary.average,
@@ -111,7 +112,7 @@ function BookPage() {
 
       const authorResponses = await Promise.all(
         authorIds.map((id: string) =>
-          axios.get(`http://localhost:3000/authors/${id}`).then(res => res.data)
+          axios.get(`${API_BASE}/authors/${id}`).then(res => res.data)
         )
       );
 
@@ -125,7 +126,7 @@ function BookPage() {
     const token = localStorage.getItem('accesstoken');
     if (!token) return;
 
-    const { data } = await axios.get('http://localhost:3000/reading-list', {
+    const { data } = await axios.get(`${API_BASE}/reading-list`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -141,7 +142,7 @@ function BookPage() {
     try {
       const token = localStorage.getItem('accesstoken');
       await axios.post(
-        'http://localhost:3000/add-to-reading-list',
+        `${API_BASE}/add-to-reading-list`,
         { bookId: id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -160,7 +161,7 @@ function BookPage() {
   const handleRemove = async () => {
     try {
       const token = localStorage.getItem('accesstoken');
-      await axios.delete(`http://localhost:3000/reading-list/${id}`, {
+      await axios.delete(`${API_BASE}/reading-list/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setReadingList(prev => prev.filter(b => b !== id));

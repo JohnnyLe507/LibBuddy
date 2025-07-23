@@ -1,15 +1,15 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from '../contexts/AuthContext';
 import './NavBar.css';
 import { useUI } from '../contexts/UIContext';
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export default function NavBar() {
   const { isLoginVisible, setIsLoginVisible } = useUI();
   const [isRegisterVisible, setIsRegisterVisible] = useState(false);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-  const navigate = useNavigate();
   const { login, logout, isLoggedIn } = useAuth();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [errorLogin, setErrorLogin] = useState('');
@@ -39,7 +39,7 @@ export default function NavBar() {
     // alert('Login')
     try {
       const formData = new FormData(e.target as HTMLFormElement);
-      const response = await axios.post('http://localhost:3000/login', {
+      const response = await axios.post(`${API_BASE}/login`, {
         name: formData.get('name'),
         password: formData.get('password')
       });
@@ -64,7 +64,7 @@ export default function NavBar() {
     e.preventDefault()
     try {
       const formData = new FormData(e.target as HTMLFormElement);
-      const response = await axios.post('http://localhost:3000/register', {
+      await axios.post(`${API_BASE}/register`, {
         name: formData.get('name'),
         password: formData.get('password')
       });

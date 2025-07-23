@@ -5,6 +5,7 @@ import { decode } from 'he';
 import { motion } from "framer-motion";
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 type Book = {
     book_id: string;
@@ -44,7 +45,7 @@ function ReadingListPage() {
 
             setLoading(true);
             try {
-                const res = await axios.get('http://localhost:3000/reading-list', {
+                const res = await axios.get(`${API_BASE}/reading-list`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -53,7 +54,7 @@ function ReadingListPage() {
                 const detailedBooks = await Promise.all(
                     readingList.map(async (item) => {
                         try {
-                            const detailsRes = await axios.get(`http://localhost:3000/works/${item.book_id}`);
+                            const detailsRes = await axios.get(`${API_BASE}/works/${item.book_id}`);
                             const details = detailsRes.data;
 
                             const authorEntries = details.authors || [];
@@ -67,7 +68,7 @@ function ReadingListPage() {
 
                             const authorNames = await Promise.all(
                                 authorIds.map(async (id: string) => {
-                                    const res = await axios.get(`http://localhost:3000/authors/${id}`);
+                                    const res = await axios.get(`${API_BASE}/authors/${id}`);
                                     const name = res.data?.personal_name || res.data?.name || "Unknown";
                                     return { id, name };
                                 })
@@ -119,7 +120,7 @@ function ReadingListPage() {
             if (!skipDebounce) setDebounceActive(true);
 
             const response = await axios.post(
-                'http://localhost:3000/suggestions',
+                `${API_BASE}/suggestions`,
                 { titles: bookTitles },
                 { headers: { 'Content-Type': 'application/json' } }
             );
@@ -152,7 +153,7 @@ function ReadingListPage() {
     const removeBook = async (bookId: string) => {
         const token = localStorage.getItem('accesstoken');
         try {
-            await axios.delete(`http://localhost:3000/reading-list/${bookId}`, {
+            await axios.delete(`${API_BASE}/reading-list/${bookId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setBooks(prev => prev.filter(book => book.book_id !== bookId));
